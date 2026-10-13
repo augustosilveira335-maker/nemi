@@ -6,6 +6,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#008069">
 <title>Nemi da Inemo</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 40 40%27%3E%3Ccircle cx=%2720%27 cy=%2720%27 r=%2720%27 fill=%27%23008069%27/%3E%3Cpath d=%27M11 15h18c0 9-3.5 15-9 15s-9-6-9-15z%27 fill=%27%23f3efe6%27/%3E%3C/svg%3E">
 <style>
 /* Layout: tela de conversa do WhatsApp em uma coluna; topo verde, fundo de papel com desenhos de chimarrão, barra de escrever fixa embaixo */
 :root {
@@ -105,6 +106,12 @@ button:focus-visible, textarea:focus-visible, input:focus-visible, a:focus-visib
 .previa .preco em { font-style: normal; color: var(--verde); font-weight: 600; }
 .previa small { color: var(--sub); font-size: 12px; }
 .previa .esgotado { color: var(--erro); font-weight: 600; }
+.previa .semfoto { color: var(--sub); font-size: 12px; }
+.previas-lista { display: flex; flex-direction: column; gap: 6px; margin: -1px -3px 6px; }
+.previas-lista .previa { margin: 0; display: flex; align-items: stretch; }
+.previas-lista .previa .img { width: 76px; min-width: 76px; aspect-ratio: auto; max-height: none; }
+.previas-lista .previa .ph { width: 76px; min-width: 76px; display: grid; place-items: center; font-size: 22px; background: var(--previa); }
+.previas-lista .previa b { font-size: 13.5px; }
 
 /* reações */
 .reagir { display: flex; gap: 4px; margin: 4px 0 2px 4px; }
@@ -297,15 +304,25 @@ function bolhaCliente(texto, tipo, img) {
 function bolhaNemi(texto, produtos) {
   const l = linhaNova("nemi");
   const b = document.createElement("div"); b.className = "bal";
-  let html = "";
-  for (const p of produtos) {
-    html += `<a class="previa" href="${esc(p.link)}" target="_blank" rel="noopener">
-      <div class="img" style="background-image:url(&quot;${esc(p.imagem)}&quot;)" role="img" aria-label="${esc(p.nome)}${p.cor ? " na cor " + esc(p.cor) : ""}"></div>
+  // foto só quando é da cor pedida (ou o produto não tem cor): nunca mostrar a rosa quando pediram preta
+  const compacto = produtos.length > 1;
+  const cartao = (p) => {
+    const temFoto = p.imagem && (!p.cor || p.foto_da_cor);
+    const foto = temFoto
+      ? `<div class="img" style="background-image:url(&quot;${esc(p.imagem)}&quot;)" role="img" aria-label="${esc(p.nome)}${p.cor ? " na cor " + esc(p.cor) : ""}"></div>`
+      : compacto ? `<div class="ph" aria-hidden="true">🧉</div>` : "";
+    const rodape = p.disponivel === false ? `<small class="esgotado">Esgotado nessa cor</small>`
+      : !temFoto && p.cor ? `<small class="semfoto">📷 Ainda sem foto da cor ${esc(p.cor)} no site</small>` : `<small>inemochimas.com</small>`;
+    return `<a class="previa" href="${esc(p.link)}" target="_blank" rel="noopener">${foto}
       <div class="info"><b>${esc(p.nome)}</b>
-      <span class="preco">${p.cor ? esc(p.cor) + " · " : ""}<em>${esc(p.preco)}</em> · Pix ${esc(p.pix)}</span>
-      ${p.disponivel === false ? `<small class="esgotado">Esgotado nessa cor</small>` : `<small>inemochimas.com</small>`}</div></a>`;
-  }
-  b.innerHTML = html + `<span class="txt">${linkify(texto)}</span>${metaHtml("nemi")}`;
+      <span class="preco">${p.cor ? esc(p.cor) + " · " : ""}<em>${esc(p.preco)}</em> · Pix ${esc(p.pix)}</span>${rodape}</div></a>`;
+  };
+  const html = produtos.length ? (compacto ? `<div class="previas-lista">${produtos.map(cartao).join("")}</div>` : cartao(produtos[0])) : "";
+  // o link que virou cartão sai do texto (fica só o cartão, como no WhatsApp)
+  let limpo = texto;
+  for (const p of produtos) limpo = limpo.split(p.link).join("");
+  limpo = limpo.replace(/[ \t]*:[ \t]*$/gm, "").replace(/\n{3,}/g, "\n\n").trim();
+  b.innerHTML = html + (limpo ? `<span class="txt">${linkify(limpo)}</span>` : "") + metaHtml("nemi");
   l.append(b);
   rolar();
   return { l, b };
