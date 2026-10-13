@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Nemi da Inemo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: uma coluna de conversa, como um telefone apoiado na mesa; cabeçalho de erva-mate, chão de papel de embrulho */
+:root {
+  --bg: #efe8dc;          /* papel kraft claro */
+  --surface: #fbf8f2;
+  --ink: #1f2a20;
+  --muted: #6b6f5f;
+  --erva: #2f5d34;        /* verde-erva */
+  --erva-ink: #f3f1e6;
+  --cuia: #7a4a2b;        /* porongo */
+  --bubble-in: #ffffff;
+  --bubble-out: #dcebd2;
+  --line: #d9cfbf;
+  --warn: #9a3412;
+  --warn-bg: #fdebd3;
+  --focus: #2f5d34;
+  --display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141912; --surface: #1c231a; --ink: #e9ece2; --muted: #a3a993;
+    --erva: #2d5a33; --erva-ink: #eef2e4; --cuia: #c9925f;
+    --bubble-in: #232b21; --bubble-out: #2c4a2c; --line: #313b2e;
+    --warn: #fdba74; --warn-bg: #3b2414; --focus: #9ccf8d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141912; --surface: #1c231a; --ink: #e9ece2; --muted: #a3a993;
+  --erva: #2d5a33; --erva-ink: #eef2e4; --cuia: #c9925f;
+  --bubble-in: #232b21; --bubble-out: #2c4a2c; --line: #313b2e;
+  --warn: #fdba74; --warn-bg: #3b2414; --focus: #9ccf8d; color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.45 var(--body); }
+.app { height: 100%; max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; }
+header.top { background: var(--erva); color: var(--erva-ink); padding: 14px 16px; display: flex; gap: 12px; align-items: center; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--erva-ink); color: var(--erva); display: grid; place-items: center; font: 800 18px var(--display); flex: none; }
+.who { min-width: 0; flex: 1; }
+.who h1 { margin: 0; font: 800 18px/1.1 var(--display); letter-spacing: .01em; }
+.who p { margin: 2px 0 0; font-size: 12.5px; opacity: .85; }
+.top button { flex: none; }
+.btn { font: 600 13px var(--body); border-radius: 999px; border: 1px solid currentColor; background: transparent; color: inherit; padding: 7px 12px; cursor: pointer; }
+.btn:focus-visible, button:focus-visible, textarea:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.brief { background: var(--surface); border-bottom: 1px solid var(--line); padding: 10px 16px; font-size: 13px; color: var(--muted); }
+.brief b { color: var(--ink); }
+.brief details summary { cursor: pointer; color: var(--ink); font-weight: 600; }
+.brief ul { margin: 6px 0 2px; padding-left: 18px; }
+#chat { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 6px; }
+.day { align-self: center; font-size: 11.5px; color: var(--muted); background: var(--surface); border: 1px solid var(--line); padding: 3px 10px; border-radius: 999px; margin: 4px 0 8px; }
+.msg { max-width: 82%; padding: 8px 11px 6px; border-radius: 12px; white-space: pre-wrap; word-wrap: break-word; min-width: 0; box-shadow: 0 1px 0 rgba(0,0,0,.06); }
+.msg.cli { align-self: flex-end; background: var(--bubble-out); border-bottom-right-radius: 4px; }
+.msg.nemi { align-self: flex-start; background: var(--bubble-in); border-bottom-left-radius: 4px; }
+.msg .meta { display: block; font-size: 11px; color: var(--muted); text-align: right; margin-top: 2px; }
+.msg.audio::before { content: "🎤 áudio transcrito"; display: block; font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+.msg img { display: block; max-width: 220px; border-radius: 8px; margin-bottom: 4px; }
+.msg a { color: var(--erva); font-weight: 600; word-break: break-all; }
+:root[data-theme="dark"] .msg a { color: var(--focus); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .msg a { color: var(--focus); } }
+.chip { align-self: flex-start; font-size: 12px; color: var(--warn); background: var(--warn-bg); border-radius: 8px; padding: 4px 9px; }
+.typing { align-self: flex-start; font-size: 12.5px; color: var(--muted); padding: 2px 4px; }
+.rate { align-self: flex-start; display: flex; gap: 6px; flex-wrap: wrap; margin: 2px 0 8px; }
+.rate button { font: 500 12px var(--body); border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 4px 10px; cursor: pointer; }
+.rate button[aria-pressed="true"] { border-color: var(--erva); color: var(--erva); font-weight: 600; }
+.fix { align-self: flex-start; width: min(100%, 520px); display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+.fix textarea { font: 14px var(--body); border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: var(--surface); color: var(--ink); min-height: 64px; resize: vertical; }
+.fix .row { display: flex; gap: 6px; flex-wrap: wrap; }
+.fix .ok { font-size: 12px; color: var(--muted); }
+footer.composer { border-top: 1px solid var(--line); background: var(--surface); padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 8px; }
+.modes { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.modes .toggle { font: 500 12.5px var(--body); border: 1px solid var(--line); background: transparent; color: var(--ink); border-radius: 999px; padding: 5px 10px; cursor: pointer; }
+.modes .toggle[aria-pressed="true"] { background: var(--erva); color: var(--erva-ink); border-color: var(--erva); }
+.modes label.toggle input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.modes .hint { font-size: 12px; color: var(--muted); }
+.send { display: flex; gap: 8px; align-items: flex-end; }
+#entrada { flex: 1; min-width: 0; font: 15px var(--body); border: 1px solid var(--line); border-radius: 18px; padding: 9px 14px; background: var(--bg); color: var(--ink); resize: none; max-height: 140px; }
+#enviar { flex: none; width: 42px; height: 42px; border-radius: 50%; border: 0; background: var(--erva); color: var(--erva-ink); font-size: 18px; cursor: pointer; }
+#enviar:disabled { opacity: .5; cursor: default; }
+.foot-actions { display: flex; gap: 8px; flex-wrap: wrap; font-size: 12.5px; }
+.foot-actions button { font: 500 12.5px var(--body); background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; padding: 0; }
+#aviso { font-size: 12.5px; color: var(--warn); }
+@media (prefers-reduced-motion: no-preference) { .msg { animation: entra .18s ease-out; } @keyframes entra { from { transform: translateY(4px); opacity: .4; } to { transform: none; opacity: 1; } } }
+
+.gate { flex: 1; display: grid; place-items: center; padding-block: 24px; padding-inline: 16px; }
+.gate-card { width: min(100%, 380px); background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 8px; }
+.gate-card h2 { margin: 0; font: 800 24px/1.1 var(--display); color: var(--erva); }
+:root[data-theme="dark"] .gate-card h2 { color: var(--focus); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .gate-card h2 { color: var(--focus); } }
+.gate-card p { margin: 0 0 8px; color: var(--muted); font-size: 14px; }
+.gate-card label { font-weight: 600; font-size: 13px; margin-top: 4px; }
+.gate-card input { font: 16px var(--body); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--bg); color: var(--ink); }
+.gate-card input:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.btn-primary { margin-top: 10px; font: 600 15px var(--body); border: 0; border-radius: 999px; background: var(--erva); color: var(--erva-ink); padding: 11px 16px; cursor: pointer; }
+.erro { color: var(--warn); font-size: 13px; min-height: 1em; margin: 0; }
+html, body { margin: 0; }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="avatar" aria-hidden="true">N</div>
+    <div class="who">
+      <h1>Nemi · Inemo Chimas</h1>
+      <p id="status">assistente de vendas · modo teste</p>
+    </div>
+    <button class="btn" id="nova" type="button">Nova conversa</button>
+  </header>
+
+  <section class="gate" id="gate">
+    <form id="gateForm" class="gate-card">
+      <h2>Teste da Nemi</h2>
+      <p>A assistente de vendas da Inemo Chimas. Escreve como cliente de verdade e tenta quebrar ela.</p>
+      <label for="gNome">Teu nome</label>
+      <input id="gNome" autocomplete="given-name" placeholder="Vini" required>
+      <label for="gCodigo">Código de acesso</label>
+      <input id="gCodigo" autocomplete="off" placeholder="código que o Augusto passou" required>
+      <button class="btn-primary" type="submit">Entrar</button>
+      <p class="erro" id="gErro" role="alert"></p>
+    </form>
+  </section>
+
+  <div class="brief" id="brief" hidden>
+    <details>
+      <summary>Como testar (tenta quebrar ela)</summary>
+      <ul>
+        <li>Escreve como cliente de verdade: errado, abreviado, em CAPS, tudo picado em várias mensagens. Ela espera tu parar de digitar pra responder.</li>
+        <li><b>🎤 Áudio</b>: liga e escreve do jeito que o WhatsApp transcreve, com palavra trocada e frase sem ponto.</li>
+        <li><b>📷 Foto</b>: manda print de produto, de concorrente, o que quiser.</li>
+        <li>Depois de cada resposta: <b>👍</b> ou <b>👎 e escreve o que ela devia ter dito</b>. Vai direto pro Augusto e é isso que treina ela.</li>
+      </ul>
+      Preço, cor e estoque vêm do site da Inemo na hora. Nada aqui faz pedido de verdade.
+    </details>
+  </div>
+
+  <main id="chat" aria-live="polite" hidden>
+    <div class="day">Hoje</div>
+    <div class="msg nemi">Oi! Aqui é a Nemi, da Inemo Chimas 🧉 No que posso te ajudar?<span class="meta">exemplo de abertura</span></div>
+  </main>
+
+  <footer class="composer" id="composer" hidden>
+    <div class="modes">
+      <button class="toggle" id="modoAudio" type="button" aria-pressed="false">🎤 Áudio</button>
+      <label class="toggle" for="foto">📷 Foto</label>
+      <input type="file" id="foto" accept="image/jpeg,image/png,image/webp" hidden>
+    </div>
+    <form class="send" id="form">
+      <textarea id="entrada" rows="1" placeholder="Escreve como cliente…" aria-label="Mensagem do cliente"></textarea>
+      <button id="enviar" type="submit" aria-label="Enviar">➤</button>
+    </form>
+    <div class="foot-actions">
+      <span id="aviso" role="status"></span>
+    </div>
+  </footer>
+</div>
+
+<script>
+const API = "https://weexiyzgykvkmycrbjwa.supabase.co/functions/v1/nemi-chat";
+const $ = (id) => document.getElementById(id);
+const chat = $("chat");
+const ler = (k) => { try { return localStorage.getItem(k) || ""; } catch { return ""; } };
+const gravar = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+let codigo = ler("nemi:codigo"), quem = ler("nemi:quem");
+let sessao = crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random();
+let turnos = [], historico = [], fotos = [];
+let timer = null, ctl = null, respostaN = 0;
+
+function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+function hora() { return new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }); }
+function linkify(t) { return esc(t).replace(/(https?:\/\/[^\s<]+[^\s<.,;:!?)])/g, '<a href="$1" target="_blank" rel="noopener">$1</a>'); }
+function rolar() { chat.scrollTop = chat.scrollHeight; }
+function aviso(t) { $("aviso").textContent = t || ""; }
+function setStatus(t) { $("status").textContent = t; }
+function addBolha(lado, texto, extra = {}) {
+  const d = document.createElement("div");
+  d.className = "msg " + lado + (extra.audio ? " audio" : "");
+  if (extra.img) { const im = document.createElement("img"); im.src = extra.img; im.alt = "foto enviada"; d.append(im); }
+  if (texto) { const s = document.createElement("span"); s.innerHTML = linkify(texto); d.append(s); }
+  const m = document.createElement("span"); m.className = "meta"; m.textContent = hora(); d.append(m);
+  chat.append(d); rolar(); return d;
+}
+function addChip(t) { const c = document.createElement("div"); c.className = "chip"; c.textContent = "↳ " + t; chat.append(c); rolar(); }
+
+async function chamar(corpo, signal) {
+  const r = await fetch(API, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...corpo, codigo, sessao, quem }), signal });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) { const e = new Error(j.mensagem || "Falhou."); e.codigo = j.erro; throw e; }
+  return j;
+}
+
+function abrir() {
+  $("gate").hidden = true; $("brief").hidden = false; chat.hidden = false; $("composer").hidden = false;
+  setStatus("assistente de vendas · testando com " + quem);
+  $("entrada").focus();
+}
+$("gNome").value = quem; $("gCodigo").value = codigo;
+$("gateForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  quem = $("gNome").value.trim(); codigo = $("gCodigo").value.trim();
+  $("gErro").textContent = "Conferindo…";
+  try {
+    await chamar({ acao: "avaliar", nota: "entrou", resposta: "", contexto: "abriu a página" });
+    gravar("nemi:codigo", codigo); gravar("nemi:quem", quem);
+    $("gErro").textContent = ""; abrir();
+  } catch (err) { $("gErro").textContent = err.codigo === "codigo" ? "Código errado. Confere com o Augusto." : "Não consegui conectar. Tenta de novo."; }
+});
+
+const modoAudio = $("modoAudio");
+modoAudio.addEventListener("click", () => {
+  const on = modoAudio.getAttribute("aria-pressed") !== "true";
+  modoAudio.setAttribute("aria-pressed", String(on));
+  $("entrada").placeholder = on ? "Escreve como o WhatsApp transcreveria o áudio…" : "Escreve como cliente…";
+  $("entrada").focus();
+});
+
+// foto: reduz no próprio aparelho (até 1280 px, JPEG) antes de mandar
+function reduz(file) {
+  return new Promise((ok, falha) => {
+    const img = new Image();
+    img.onload = () => {
+      const k = Math.min(1, 1280 / Math.max(img.width, img.height));
+      const c = document.createElement("canvas"); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      const url = c.toDataURL("image/jpeg", 0.85);
+      ok({ url, data: url.split(",")[1] });
+    };
+    img.onerror = falha;
+    img.src = URL.createObjectURL(file);
+  });
+}
+$("foto").addEventListener("change", async (e) => {
+  const f = e.target.files && e.target.files[0];
+  e.target.value = "";
+  if (!f) return;
+  try {
+    const r = await reduz(f);
+    fotos.push({ media_type: "image/jpeg", data: r.data });
+    addBolha("cli", "", { img: r.url });
+    turnos.push({ role: "user", content: "[cliente mandou foto] (a imagem vai anexada)" });
+    historico.push({ quem: quem || "cliente", texto: "[foto]" });
+    agenda();
+  } catch { aviso("Não consegui abrir essa foto. Tenta outra."); }
+});
+
+const entrada = $("entrada");
+entrada.addEventListener("input", () => {
+  entrada.style.height = "auto"; entrada.style.height = Math.min(entrada.scrollHeight, 140) + "px";
+  if (timer) agenda(); // ainda digitando: espera
+});
+entrada.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !matchMedia("(pointer: coarse)").matches) { e.preventDefault(); $("form").requestSubmit(); } });
+
+$("form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const t = entrada.value.trim();
+  if (!t) return;
+  const audio = modoAudio.getAttribute("aria-pressed") === "true";
+  addBolha("cli", t, { audio });
+  turnos.push({ role: "user", content: (audio ? "[cliente, áudio transcrito] " : "[cliente, texto] ") + t });
+  historico.push({ quem: quem || "cliente", texto: (audio ? "(áudio) " : "") + t });
+  entrada.value = ""; entrada.style.height = "auto";
+  if (ctl) ctl.abort(); // chegou mensagem nova no meio: refaz com tudo
+  agenda();
+});
+
+function agenda() {
+  clearTimeout(timer);
+  setStatus("visualizou");
+  timer = setTimeout(responder, 2600); // espera o cliente terminar de picar a mensagem
+}
+
+async function responder() {
+  timer = null;
+  if (!turnos.length || turnos[turnos.length - 1].role !== "user") return;
+  const meu = ctl = new AbortController();
+  setStatus("digitando…");
+  const dig = document.createElement("div"); dig.className = "typing"; dig.textContent = "Nemi está digitando…"; chat.append(dig); rolar();
+  const enviadas = fotos.slice(-3);
+  try {
+    const j = await chamar({ acao: "conversar", mensagens: turnos.slice(-40), fotos: enviadas }, meu.signal);
+    dig.remove(); fotos = []; aviso("");
+    await mostrar(j.texto, j.humano);
+  } catch (e) {
+    dig.remove();
+    if (e.name === "AbortError") return;
+    if (e.codigo === "codigo") { gravar("nemi:codigo", ""); location.reload(); return; }
+    aviso(e.message || "A Nemi travou nessa. Manda de novo.");
+  } finally {
+    if (ctl === meu) { ctl = null; setStatus("assistente de vendas · testando com " + quem); }
+  }
+}
+
+async function mostrar(texto, humano) {
+  const bolhas = texto.split(/\n\s*---\s*\n|^\s*---\s*$/m).map((s) => s.trim()).filter(Boolean);
+  turnos.push({ role: "assistant", content: texto + (humano ? "\n[HUMANO: " + humano + "]" : "") });
+  const id = ++respostaN;
+  for (let i = 0; i < bolhas.length; i++) { if (i) await new Promise((r) => setTimeout(r, 700)); addBolha("nemi", bolhas[i]); }
+  if (humano) addChip("passaria para a equipe: " + humano);
+  historico.push({ quem: "Nemi", texto: bolhas.join("\n"), id });
+  addAvaliacao(id, bolhas.join("\n"));
+}
+
+function addAvaliacao(id, resposta) {
+  const box = document.createElement("div"); box.className = "rate";
+  const bom = document.createElement("button"); bom.type = "button"; bom.textContent = "👍 boa"; bom.setAttribute("aria-pressed", "false");
+  const ruim = document.createElement("button"); ruim.type = "button"; ruim.textContent = "👎 errou"; ruim.setAttribute("aria-pressed", "false");
+  box.append(bom, ruim); chat.append(box); rolar();
+  const idx = historico.length - 1;
+  const contexto = () => historico.slice(Math.max(0, idx - 8), idx).map((h) => h.quem + ": " + h.texto).join("\n");
+  const envia = (nota, correcao) => chamar({ acao: "avaliar", nota, correcao, resposta, contexto: contexto() });
+  bom.onclick = async () => { bom.setAttribute("aria-pressed", "true"); ruim.setAttribute("aria-pressed", "false"); try { await envia("boa", ""); } catch {} };
+  ruim.onclick = () => {
+    ruim.setAttribute("aria-pressed", "true"); bom.setAttribute("aria-pressed", "false");
+    if (box.nextElementSibling && box.nextElementSibling.classList.contains("fix")) return;
+    const fix = document.createElement("div"); fix.className = "fix";
+    const ta = document.createElement("textarea"); ta.id = "fix-" + id; ta.placeholder = "O que ela devia ter dito (ou o que tá errado)?"; ta.setAttribute("aria-label", "Correção da resposta");
+    const row = document.createElement("div"); row.className = "row";
+    const ok = document.createElement("button"); ok.type = "button"; ok.className = "btn"; ok.textContent = "Mandar correção";
+    const st = document.createElement("span"); st.className = "ok";
+    row.append(ok, st); fix.append(ta, row); box.after(fix); ta.focus(); rolar();
+    ok.onclick = async () => {
+      st.textContent = "Enviando…";
+      try { await envia("ruim", ta.value.trim()); st.textContent = "Recebido. Valeu!"; ok.disabled = true; }
+      catch { st.textContent = "Não foi. Tenta de novo."; }
+    };
+  };
+}
+
+$("nova").addEventListener("click", () => {
+  if (ctl) ctl.abort();
+  clearTimeout(timer); timer = null;
+  turnos = []; historico = []; fotos = [];
+  sessao = crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random();
+  chat.innerHTML = '<div class="day">Nova conversa</div>';
+  aviso(""); entrada.focus();
+});
+
+if (codigo && quem) abrir();
+</script>
+
+</body>
+</html>
