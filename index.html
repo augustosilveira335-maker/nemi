@@ -319,9 +319,8 @@ function bolhaNemi(texto, produtos) {
   };
   const html = produtos.length ? (compacto ? `<div class="previas-lista">${produtos.map(cartao).join("")}</div>` : cartao(produtos[0])) : "";
   // o link que virou cartão sai do texto (fica só o cartão, como no WhatsApp)
-  let limpo = texto;
-  for (const p of produtos) limpo = limpo.split(p.link).join("");
-  limpo = limpo.replace(/[ \t]*:[ \t]*$/gm, "").replace(/\n{3,}/g, "\n\n").trim();
+  // a linha do link inteiro sai: o cartão já mostra nome, cor e preço
+  const limpo = texto.split("\n").filter((l) => !produtos.some((p) => l.includes(p.link))).join("\n").replace(/\n{3,}/g, "\n\n").trim();
   b.innerHTML = html + (limpo ? `<span class="txt">${linkify(limpo)}</span>` : "") + metaHtml("nemi");
   l.append(b);
   rolar();
